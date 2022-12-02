@@ -180,5 +180,10 @@ docker-compose.prod.yml
 # config file
 config
 
+#tests
+tests.py
+
+# End of https://www.toptal.com/developers/gitignore/api/django
+
 
 # End of https://www.toptal.com/developers/gitignore/api/django
