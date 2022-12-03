@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 import boto3
 from django.conf import settings
 from botocore.exceptions import ClientError
-import sys
 
 ec2client = boto3.client('ec2', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
@@ -100,20 +99,51 @@ class Ec2StopView(APIView):
 
 # 6
 class Ec2CreateView(APIView):
-    def get(self, request):
-        return JsonResponse()
+    def post(self, request):
+        image_id = request.data["image_id"]
+        ec2 = boto3.resource('ec2', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        ec2.create_instances(ImageId=image_id, MinCount=1, MaxCount=1, InstanceType='t2.micro',)
+        return Response({
+            'message': image_id + ' create'
+        })
 
 
 # 7
 class Ec2RebootView(APIView):
-    def get(self, request):
-        return JsonResponse()
+    def post(self, request):
+        from botocore.exceptions import ClientError
+        instance_id = request.data["instance_id"]
+
+        try:
+            ec2client.reboot_instances(InstanceIds=[instance_id], DryRun=True)
+        except ClientError as e:
+            if 'DryRunOperation' not in str(e):
+                print("You don't have permission to reboot instances.")
+                raise
+
+        try:
+            response = ec2client.reboot_instances(InstanceIds=[instance_id], DryRun=False)
+            print('Success', response)
+        except ClientError as e:
+            print('Error', e)
+        return Response({
+            'message': instance_id + ' restart'
+        })
 
 
 # 8
 class Ec2ListImageView(APIView):
     def get(self, request):
-        return JsonResponse()
+        data = {'image': []}
+        images = ec2client.describe_images(Owners=['self'])
+        for image in images['Images']:
+            data['image'].append({
+                "[ImageId]": image['ImageId'],
+                "[Name]": image['Name'],
+                "[Owner]": image['OwnerId']
+            })
+        return JsonResponse(data)
 
 
 # 99
