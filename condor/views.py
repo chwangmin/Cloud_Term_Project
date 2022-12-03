@@ -31,9 +31,17 @@ class Ec2ListView(APIView):
 
 
 # 2
-class Ec2AvailZXView(APIView):
-    def post(self, request):
-        return JsonResponse()
+class Ec2AvailZView(APIView):
+    def get(self, request):
+        data = {'zone': []}
+        response = ec2client.describe_availability_zones()
+        for zone in response['AvailabilityZones']:
+            data['zone'].append({
+                "[id]": zone["ZoneId"],
+                "[region]": zone["RegionName"],
+                "[zone]": zone["ZoneName"],
+            })
+        return JsonResponse(data)
 
 
 # 3
@@ -60,7 +68,13 @@ class Ec2StartView(APIView):
 # 4
 class Ec2AvailRView(APIView):
     def get(self, request):
-        return JsonResponse()
+        data = {'zone': []}
+        for region in ec2client.describe_regions()['Regions']:
+            data['zone'].append({
+                "[region]": region['RegionName'],
+                "[endpoint]": region['Endpoint']
+            })
+        return JsonResponse(data)
 
 
 # 5
