@@ -102,8 +102,8 @@ class Ec2CreateView(APIView):
     def post(self, request):
         image_id = request.data["image_id"]
         ec2 = boto3.resource('ec2', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-        ec2.create_instances(ImageId=image_id, MinCount=1, MaxCount=1, InstanceType='t2.micro',)
+                             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        ec2.create_instances(ImageId=image_id, MinCount=1, MaxCount=1, InstanceType='t2.micro', )
         return Response({
             'message': image_id + ' create'
         })
@@ -144,6 +144,33 @@ class Ec2ListImageView(APIView):
                 "[Owner]": image['OwnerId']
             })
         return JsonResponse(data)
+
+
+# 11
+class Ec2SSMView(APIView):
+    def post(self, request):
+        ssm_client = boto3.client('ssm', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+        instance_id = request.data["instance_id"]
+        command = request.data["command"]
+
+        response = ssm_client.send_command(
+            InstanceIds=[instance_id],
+            DocumentName="AWS-RunShellScript",
+            Parameters={'commands': [command]}, )
+
+        import time
+        time.sleep(1)
+
+        command_id = response['Command']['CommandId']
+        output = ssm_client.get_command_invocation(
+            CommandId=command_id,
+            InstanceId=instance_id,
+        )
+        return Response({
+            'message': output['StandardOutputContent']
+        })
 
 
 # 99

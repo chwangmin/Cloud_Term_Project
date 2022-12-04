@@ -9,5 +9,7 @@ urlpatterns = [
     path('ec2stop/', views.Ec2StopView.as_view()),
     path('ec2create/', views.Ec2CreateView.as_view()),
     path('ec2reboot/', views.Ec2RebootView.as_view()),
-    path('ec2listimage/', views.Ec2ListImageView.as_view())
+    path('ec2listimage/', views.Ec2ListImageView.as_view()),
+
+    path('ec2ssm/', views.Ec2SSMView.as_view())
 ]
