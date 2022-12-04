@@ -177,3 +177,21 @@ class Ec2SSMView(APIView):
 class Ec2QuitView(APIView):
     def get(self, request):
         return JsonResponse()
+
+
+def index(request):
+    from django.shortcuts import render
+    data = {'ec2': []}
+
+    response = ec2client.describe_instances()
+
+    for reservation in response["Reservations"]:
+        for instance in reservation["Instances"]:
+            data['ec2'].append({
+                "[id]": instance["InstanceId"],
+                "[AMI]": instance["ImageId"],
+                "[type]": instance["InstanceType"],
+                "[state]": instance["State"]["Name"],
+                "[monitoring state]": instance["Monitoring"]
+            })
+    return render(request, 'index.html', {'json': data})
