@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="mt-4">Ec2 List</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">[ID]</th>
+            <th scope="col">[AMI]</th>
+            <th scope="col">[type]</th>
+            <th scope="col">[state]</th>
+            <th scope="col">[monitoring state]</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in json.ec2 %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ object.id }}</td>
+                <td>{{ object.AMI }}</td>
+                <td>{{ object.type }}</td>
+                <td>{{ object.state }}</td>
+                <td>{{ object.monitoring_state.State }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

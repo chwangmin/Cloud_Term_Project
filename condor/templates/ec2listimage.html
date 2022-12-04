@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="mt-4">Ec2 List</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">[ImageId]</th>
+            <th scope="col">[Name]</th>
+            <th scope="col">[Owner]</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in json.image %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ object.ImageId }}</td>
+                <td>{{ object.Name }}</td>
+                <td>{{ object.Owner }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

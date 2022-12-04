@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="mt-4">Ec2 Availabe Zones</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">[region]</th>
+            <th scope="col">[endpoint]</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in json.zone %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ object.region }}</td>
+                <td>{{ object.endpoint }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

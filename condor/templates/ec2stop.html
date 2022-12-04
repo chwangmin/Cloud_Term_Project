@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if get %}
+    <form action="http://127.0.0.1:8000/condor/ec2stop" method="post">
+        <h1 class="mt-4">중지시키고 싶은 ec2를 적으세요.</h1>
+        {% csrf_token %}
+        {{ form }}
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="instance_id" value="i-0aa6f289f578b031f">
+    </form>
+    {% else %}
+        <h1 class="mt-4">{{ instance_id }}이 중지되었습니다</h1>
+    {% endif %}
+{% endblock %}
