@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if get %}
+    <form action="http://127.0.0.1:8000/condor/ec2ssm" method="post">
+        <h1 class="mt-4">ec2 instance에서 condor_status 실행시켜보기</h1>
+        {% csrf_token %}
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="instance_id" value="i-0b3f79839ccbc2eae">
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="command" value="condor_status">
+        <button type="submit" class="btn btn-success">Next</button>
+    </form>
+    {% else %}
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="20">{{ output.StandardOutputContent }}</textarea>
+    {% endif %}
+{% endblock %}

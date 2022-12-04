@@ -149,6 +149,8 @@ class Ec2ListImageView(APIView):
 
 # 11
 class Ec2SSMView(APIView):
+    def get(self,request):
+        return render(request, 'ec2ssm.html', {'get': '1'})
     def post(self, request):
         ssm_client = boto3.client('ssm', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                                   aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
@@ -169,9 +171,7 @@ class Ec2SSMView(APIView):
             CommandId=command_id,
             InstanceId=instance_id,
         )
-        return Response({
-            'message': output['StandardOutputContent']
-        })
+        return render(request, 'ec2ssm.html', {'output': output})
 
 
 # 99
