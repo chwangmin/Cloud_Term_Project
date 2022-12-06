@@ -1,12 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework.response import Response
 from rest_framework.views import APIView
 import boto3
 from django.conf import settings
 from botocore.exceptions import ClientError
-import json
-from urllib.request import urlopen
 
 ec2client = boto3.client('ec2', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
@@ -45,7 +42,7 @@ class Ec2AvailZView(APIView):
 
 # 3
 class Ec2StartView(APIView):
-    def get(self,request):
+    def get(self, request):
         return render(request, 'ec2start.html', {'get': '1'})
 
     def post(self, request):
@@ -55,8 +52,6 @@ class Ec2StartView(APIView):
         except ClientError as e:
             if 'DryRunOperation' not in str(e):
                 raise
-
-            # Dry run succeeded, run start_instances without dryrun
         try:
             response = ec2client.start_instances(InstanceIds=[instance_id], DryRun=False)
             print(response)
@@ -79,8 +74,9 @@ class Ec2AvailRView(APIView):
 
 # 5
 class Ec2StopView(APIView):
-    def get(self,request):
+    def get(self, request):
         return render(request, 'ec2stop.html', {'get': '1'})
+
     def post(self, request):
         instance_id = request.data["instance_id"]
         try:
@@ -88,8 +84,6 @@ class Ec2StopView(APIView):
         except ClientError as e:
             if 'DryRunOperation' not in str(e):
                 raise
-
-            # Dry run succeeded, call stop_instances without dryrun
         try:
             response = ec2client.stop_instances(InstanceIds=[instance_id], DryRun=False)
             print(response)
@@ -100,8 +94,9 @@ class Ec2StopView(APIView):
 
 # 6
 class Ec2CreateView(APIView):
-    def get(self,request):
+    def get(self, request):
         return render(request, 'ec2create.html', {'get': '1'})
+
     def post(self, request):
         image_id = request.data["image_id"]
         ec2 = boto3.resource('ec2', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -112,8 +107,9 @@ class Ec2CreateView(APIView):
 
 # 7
 class Ec2RebootView(APIView):
-    def get(self,request):
+    def get(self, request):
         return render(request, 'ec2reboot.html', {'get': '1'})
+
     def post(self, request):
         from botocore.exceptions import ClientError
         instance_id = request.data["instance_id"]
@@ -149,8 +145,9 @@ class Ec2ListImageView(APIView):
 
 # 11
 class Ec2SSMView(APIView):
-    def get(self,request):
+    def get(self, request):
         return render(request, 'ec2ssm.html', {'get': '1'})
+
     def post(self, request):
         ssm_client = boto3.client('ssm', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                                   aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
@@ -172,6 +169,96 @@ class Ec2SSMView(APIView):
             InstanceId=instance_id,
         )
         return render(request, 'ec2ssm.html', {'output': output})
+
+
+# 12
+class Ec2CEView(APIView):
+    def get(self, request):
+        data = {'cost': []}
+        client = boto3.client('ce', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        import datetime
+        today = datetime.date.today()
+        start = today.replace(day=1).strftime('%Y-%m-%d')
+        end = today.strftime('%Y-%m-%d')
+        response = client.get_cost_and_usage(
+            TimePeriod={"Start": start, "End": end},
+            Granularity="MONTHLY",
+            Metrics=["UnblendedCost"],
+            Filter={
+                'Dimensions': {
+                    'Key': 'AZ',
+                    'Values': [
+                        'Compute',
+                    ],
+                    'MatchOptions': [
+                        'EQUALS',
+                    ]
+                }
+            }
+        )
+        data['cost'].append({
+            "Start": response['ResultsByTime'][0]["TimePeriod"]["Start"],
+            "End": response['ResultsByTime'][0]["TimePeriod"]["End"],
+            "Amount": response['ResultsByTime'][0]["Total"]["UnblendedCost"]["Amount"]
+        })
+        return render(request, 'ec2ce.html', {'output': data })
+
+
+# 13
+class Ec2SendMailView(APIView):
+    def get(self, request):
+        client = boto3.client('ce', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        import datetime
+        today = datetime.date.today()
+        start = today.replace(day=1).strftime('%Y-%m-%d')
+        end = today.strftime('%Y-%m-%d')
+        response = client.get_cost_and_usage(
+            TimePeriod={
+                'Start': start,
+                'End': end,
+            },
+            Granularity='DAILY',
+            Metrics=[
+                'NetUnblendedCost'
+            ],
+            GroupBy=[
+                {
+                    'Type': 'DIMENSION',
+                    'Key': 'LINKED_ACCOUNT'
+                }
+            ]
+        )
+        return render(request, 'ec2ce.html', {'output': response['ResultsByTime']})
+
+
+# 14
+class Ec2SecureGView(APIView):
+    def get(self, request):
+        client = boto3.client('ce', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        import datetime
+        today = datetime.date.today()
+        start = today.replace(day=1).strftime('%Y-%m-%d')
+        end = today.strftime('%Y-%m-%d')
+        response = client.get_cost_and_usage(
+            TimePeriod={
+                'Start': start,
+                'End': end,
+            },
+            Granularity='DAILY',
+            Metrics=[
+                'NetUnblendedCost'
+            ],
+            GroupBy=[
+                {
+                    'Type': 'DIMENSION',
+                    'Key': 'LINKED_ACCOUNT'
+                }
+            ]
+        )
+        return render(request, 'ec2ce.html', {'output': response['ResultsByTime']})
 
 
 # 99

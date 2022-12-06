@@ -11,5 +11,6 @@ urlpatterns = [
     path('ec2reboot', views.Ec2RebootView.as_view()),
     path('ec2listimage', views.Ec2ListImageView.as_view()),
 
-    path('ec2ssm', views.Ec2SSMView.as_view())
+    path('ec2ssm', views.Ec2SSMView.as_view()),
+    path('ec2ce', views.Ec2CEView.as_view())
 ]

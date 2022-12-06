@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="mt-4">Ec2 Montly Cost</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">[Time_Start]</th>
+            <th scope="col">[Time_End]</th>
+            <th scope="col">[Amount]</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">#</th>
+                <td>{{ output.cost.0.Start }}</td>
+                <td>{{ output.cost.0.End }}</td>
+                <td>{{ output.cost.0.Amount }} 달러</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
