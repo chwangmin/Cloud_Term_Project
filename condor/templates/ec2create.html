@@ -4,7 +4,7 @@
     <form action="http://127.0.0.1:8000/condor/ec2create" method="post">
         <h1 class="mt-4">생성시키고 싶은 이미지를 적으세요.</h1>
         {% csrf_token %}
-        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="instance_id" value="i-0aa6f289f578b031f">
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="image_id" value="ami-05e1754e3d8e30cff">
         <button type="submit" class="btn btn-success">Next</button>
     </form>
     {% else %}

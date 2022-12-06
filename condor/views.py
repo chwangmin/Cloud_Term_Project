@@ -101,7 +101,15 @@ class Ec2CreateView(APIView):
         image_id = request.data["image_id"]
         ec2 = boto3.resource('ec2', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-        ec2.create_instances(ImageId=image_id, MinCount=1, MaxCount=1, InstanceType='t2.micro', )
+        ec2.create_instances(
+            ImageId=image_id,
+            MinCount=1,
+            MaxCount=1,
+            InstanceType='t2.micro',
+            IamInstanceProfile={
+                'Name': 'AmazonSSMManagedRole'
+            },
+        )
         return render(request, 'ec2create.html', {'image_id': image_id})
 
 
