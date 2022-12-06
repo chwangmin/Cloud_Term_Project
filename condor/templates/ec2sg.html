@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="mt-4">Ec2 Montly Cost</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">[Name]</th>
+            <th scope="col">[Gid]</th>
+            <th scope="col">[Port]</th>
+            <th scope="col">[protocol]</th>
+            <th scope="col">[ipaddr]</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in output.sg %}
+            <tr>
+                <th scope="row">#</th>
+                <td>{{ object.Name }}</td>
+                <td>{{ object.Gid }}</td>
+                <td>{{ object.Port }}</td>
+                <td>{{ object.protocol }}</td>
+                <td>{{ object.ipaddr }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

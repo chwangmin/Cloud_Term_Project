@@ -202,63 +202,88 @@ class Ec2CEView(APIView):
             "End": response['ResultsByTime'][0]["TimePeriod"]["End"],
             "Amount": response['ResultsByTime'][0]["Total"]["UnblendedCost"]["Amount"]
         })
-        return render(request, 'ec2ce.html', {'output': data })
+        return render(request, 'ec2ce.html', {'output': data})
 
 
 # 13
-class Ec2SendMailView(APIView):
+class Ec2SecureGView(APIView):
     def get(self, request):
-        client = boto3.client('ce', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-        import datetime
-        today = datetime.date.today()
-        start = today.replace(day=1).strftime('%Y-%m-%d')
-        end = today.strftime('%Y-%m-%d')
-        response = client.get_cost_and_usage(
-            TimePeriod={
-                'Start': start,
-                'End': end,
-            },
-            Granularity='DAILY',
-            Metrics=[
-                'NetUnblendedCost'
-            ],
-            GroupBy=[
-                {
-                    'Type': 'DIMENSION',
-                    'Key': 'LINKED_ACCOUNT'
-                }
-            ]
-        )
-        return render(request, 'ec2ce.html', {'output': response['ResultsByTime']})
+        data = {'sg': []}
+        response = ec2client.describe_security_groups()['SecurityGroups']
+        for i in response:
+            name = i['GroupName']
+            gid = i['GroupId']
+            for j in i['IpPermissions']:
+                try:
+                    port = 'ANY' if j['FromPort'] == -1 else j['FromPort']
+                    protocol = j['IpProtocol']
+                    ipaddr = j['IpRanges'][0]['CidrIp']
+
+                    if ipaddr == '0.0.0.0/0':
+                        data['sg'].append({
+                            "Name": name,
+                            "Gid": gid,
+                            "Port": port,
+                            "protocol": protocol,
+                            "ipaddr": ipaddr
+                        })
+                except:
+                    pass
+        return render(request, 'ec2sg.html', {'output': data})
 
 
 # 14
-class Ec2SecureGView(APIView):
+class Ec2SMSVerifyView(APIView):
     def get(self, request):
-        client = boto3.client('ce', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-        import datetime
-        today = datetime.date.today()
-        start = today.replace(day=1).strftime('%Y-%m-%d')
-        end = today.strftime('%Y-%m-%d')
-        response = client.get_cost_and_usage(
-            TimePeriod={
-                'Start': start,
-                'End': end,
-            },
-            Granularity='DAILY',
-            Metrics=[
-                'NetUnblendedCost'
-            ],
-            GroupBy=[
-                {
-                    'Type': 'DIMENSION',
-                    'Key': 'LINKED_ACCOUNT'
-                }
-            ]
+        return render(request, 'ec2smsv.html', {'get': '1'})
+
+    def post(self, request):
+        email = request.data["email"]
+        ses_client = boto3.client('ses', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                                  region_name="ap-northeast-2")
+        ses_client.verify_email_identity(
+            EmailAddress=email
         )
-        return render(request, 'ec2ce.html', {'output': response['ResultsByTime']})
+        return render(request, 'ec2smsv.html', {'email': email})
+
+
+# 15
+class Ec2SendMailView(APIView):
+    def get(self, request):
+        return render(request, 'ec2sm.html', {'get': '1'})
+
+    def post(self, request):
+        email = request.data["email"]
+        body = request.data["body"]
+        subject = request.data["subject"]
+        ses_client = boto3.client('ses', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                                  region_name="ap-northeast-2")
+
+        charset = "UTF-8"
+
+        ses_client.send_email(
+            Destination={
+                "ToAddresses": [
+                    email,
+                ],
+            },
+            Message={
+                "Body": {
+                    "Text": {
+                        "Charset": charset,
+                        "Data": body,
+                    }
+                },
+                "Subject": {
+                    "Charset": charset,
+                    "Data": subject,
+                },
+            },
+            Source="ckm7907@naver.com",
+        )
+        return render(request, 'ec2sm.html', {'email': email})
 
 
 # 99

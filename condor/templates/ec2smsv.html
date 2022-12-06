@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if get %}
+    <form action="http://127.0.0.1:8000/condor/ec2smsv" method="post">
+        <h1 class="mt-4">검증을 위한 이메일 주소를 적으세요</h1>
+        {% csrf_token %}
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="email" value="@naver.com">
+    </form>
+    {% else %}
+        <h1 class="mt-4">{{ email }} 메일을 확인하세요!</h1>
+    {% endif %}
+{% endblock %}

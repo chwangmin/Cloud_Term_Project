@@ -12,5 +12,8 @@ urlpatterns = [
     path('ec2listimage', views.Ec2ListImageView.as_view()),
 
     path('ec2ssm', views.Ec2SSMView.as_view()),
-    path('ec2ce', views.Ec2CEView.as_view())
+    path('ec2ce', views.Ec2CEView.as_view()),
+    path('ec2sg', views.Ec2SecureGView.as_view()),
+    path('ec2smsv', views.Ec2SMSVerifyView.as_view()),
+    path('ec2sm', views.Ec2SendMailView.as_view())
 ]

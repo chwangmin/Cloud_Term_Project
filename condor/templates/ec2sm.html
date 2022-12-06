@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if get %}
+    <form action="http://127.0.0.1:8000/condor/ec2sm" method="post">
+        <h1 class="mt-4">이메일과 제목, 내용을 적으세요.</h1>
+        {% csrf_token %}
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="email" value="@naver.com">
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="subject" value="제목">
+        <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="body" value="내용">
+        <button type="submit" class="btn btn-success">Next</button>
+    </form>
+    {% else %}
+        <h1 class="mt-4">{{ email }} 전송되었습니다.</h1>
+    {% endif %}
+{% endblock %}
