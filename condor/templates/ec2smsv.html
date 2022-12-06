@@ -5,6 +5,7 @@
         <h1 class="mt-4">검증을 위한 이메일 주소를 적으세요</h1>
         {% csrf_token %}
         <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" name="email" value="@naver.com">
+        <button type="submit" class="btn btn-success">Next</button>
     </form>
     {% else %}
         <h1 class="mt-4">{{ email }} 메일을 확인하세요!</h1>
